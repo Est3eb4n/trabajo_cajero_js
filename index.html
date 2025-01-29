@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <nav id="enlacesMenu">
+          <ul>
+            <li><a href="index.html">Crear Cuenta</a></li>
+            <li><a href="consignar.html">Consignar en la Cuenta</a></li>
+            <li><a href="retirar.html">Retirar Dinero</a></li>
+            <li><a href="pagarSrv.html">Pagar Servicios</a></li>
+            <li><a href="movimientos.html">Ver movimientos</a></li>
+          </ul>
+        </nav>
+      </header>
+    <section id="contenedor">
+        <header>
+          <h1>Mi Banco Digital</h1>
+        </header>
+        <main>
+          <section class="content" id="crearCuenta">
+            <h2>Crear Cuenta</h2>
+            <form class="cont">
+                <label for="cc">Ingrece sus datos:</label>
+              <input type="text" id="cc" name="cc" placeholder="Cedula" required>
+              <input type="text" id="name" name="cc" placeholder="Nombre" required>
+              <input type="text" id="clave" name="cc" placeholder="Clave" required>
+              <input type="text" id="cta" name="cc" placeholder="Cuenta" required>
+              <input type="text" id="saldo" name="cc" placeholder="" required>
+              <button id="btn" type="submit">Crear Cuenta</button>
+            </form>
+          </section>
+          <section class="content" id="consignar">
+            <h2>Consignar Dinero</h2>
+            <form class="cont">
+              <label for="numeroCuenta">Número de cuenta o documento:</label>
+              <input type="text" id="numeroCuenta" required>
+              <label for="monto">Monto:</label>
+              <input type="number" id="monto" min="1" required>
+              <button type="button" onclick="consignacion()">Consignar</button>
+            </form>
+          </section>
+          <section class="content" id="retirar">
+            <h2>Retirar Dinero</h2>
+            <form class="cont">
+              <label for="numeroCuenta">Número de cuenta o documento:</label>
+              <input type="text" id="numeroCuenta" required>
+              <label for="monto">Monto:</label>
+              <input type="number" id="monto" min="1" required>
+              <button type="button" onclick="RetirarDinero()">Retirar</button>
+            </form>
+          </section>
+          <section class="content" id="pagarServicio">
+            <h2>Pagar Servicio</h2>
+            <form class="cont">
+              <label for="numeroCuenta">Número de cuenta:</label>
+              <input type="text" id="numeroCuenta" required>
+              <label for="clave">Clave:</label>
+              <input type="password" id="clave" required>
+              <label for="servicio">Servicio:</label>
+              <select id="servicio">
+                <option value="energia">Energía</option>
+                <option value="agua">Agua</option>
+                <option value="gas">Gas</option>
+              </select>
+              <label for="referencia">Referencia:</label>
+              <input type="text" id="referencia" required>
+              <label for="monto">Monto:</label>
+              <input type="number" id="monto" min="1" required>
+              <button type="button" onclick="pagoServicio()">Pagar</button>
+              <p id="mensajeExito" class="mensaje"></p>
+              <p id="mensajeError" class="mensaje"></p>
+            </form>
+          </section>
+          <section class="content" id="movimientos">
+            <h2>Movimientos</h2>
+            <ul id="listaMovimientos"></ul>
+            <button onclick="movimientosCuenta()">Ver Movimientos</button>
+          </section>
+        </main>
+      </section>
+    <script src="cajero.js"></script>
+</body>
+</html>

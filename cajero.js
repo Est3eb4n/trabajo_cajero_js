@@ -30,15 +30,19 @@ function crearCuenta(cuentas,movimientos) {
   movimientos.push({ "cta": nuevaCuenta.cta, "movimientos": [] });
 
   // Almacenar los datos en localStorage
-  localStorage.setItem("cuentas", JSON.stringify(cuentas));
-  localStorage.setItem("movimientos", JSON.stringify(movimientos));
+  const cuentasGuardadas= localStorage.getItem("cuentas")
+  const movimientosGuardados= localStorage.getItem("movimientos")
+  
+  if(cuentasGuardadas){
+    cuentas= JSON.parse(cuentasGuardadas);
+  }
+  if(movimientosGuardados){
+    movimientos = JSON.parse(movimientosGuardados);
+  }
 
   // Mostrar un mensaje de éxito y limpiar el formulario
   alert("¡Cuenta creada exitosamente!");
   document.getElementById('crearCuenta').reset();
-
-  // Actualizar la lista de cuentas (si tienes una lista en el HTML)
-  // ... (código para actualizar la lista)
 }
 
 // Obtener el botón de guardar y agregar el event listener
@@ -49,8 +53,8 @@ btnGuardar.addEventListener('click', crearCuenta);
   // CONSIGNACION
   
   function consignacion() {
-    const documentoOcuenta = document.getElementById('numeroCuenta').value;
-    const montoInput = document.getElementById('monto');
+    const documentoOcuenta = document.getElementById('numeroCuentaCd').value;
+    const montoInput = document.getElementById('montoCd');
     const monto = parseInt(montoInput.value);
   
     if (isNaN(monto) || monto <= 0) {
@@ -82,38 +86,50 @@ btnGuardar.addEventListener('click', crearCuenta);
 
 
   //            Retiro 
-    function RetirarDinero(cuentas,retiros){
-        const validacion= prompt("ingrece su documento o numero de cuenta");
-        const cuentaEncontrada = cuentas.find(cuentas=>cuentas.cc === validacion || cuentas.cta === validacion);
-        if (cuentaEncontrada){
-            const monto = parseInt(prompt("ingrese el monto que desea Retirar = $ "));
-            if(monto > 0){
-                cuentaEncontrada.saldo -= monto;
-            retiros.push({
-                tipo:"Retiro",
-                cuenta: cuentaEncontrada.cta,
-                monto:monto,
-            });
-            localStorage.setItem('cuentas',JSON.stringify(cuentas));
-            localStorage.setItem('retros',JSON.stringify(retiros));
-
-            alert("Retiro Exitoso");
-         }else{
-            alert("El monto debe ser mayor a cero");
-         }
-        }else{
-            alert("Cuenta no encontrada");
-        }
-    };
+  function RetirarDinero() {
+    const documentoOcuenta = document.getElementById('numeroCuentaRd').value;
+    const montoInput = document.getElementById('montoRd');
+    const monto = parseInt(montoInput.value);
+  
+    if (isNaN(monto) || monto <= 0) {
+      alert('El monto debe ser un número positivo.');
+      return;
+    }
+  
+    const cuentaEncontrada = cuentas.find(cuenta => cuenta.cc === documentoOcuenta || cuenta.cta === documentoOcuenta);
+  
+    if (cuentaEncontrada) {
+      if (cuentaEncontrada.saldo >= monto) {
+        cuentaEncontrada.saldo -= monto;
+  
+        retiros.push({
+          tipo: "Retiro",
+          cuenta: cuentaEncontrada.cta,
+          monto,
+          fecha: new Date().toLocaleDateString()
+        });
+  
+        localStorage.setItem('cuentas', JSON.stringify(cuentas));
+        localStorage.setItem('retiros', JSON.stringify(retiros));
+  
+        alert(`Retiro exitoso. Nuevo saldo: $${cuentaEncontrada.saldo}`);
+        montoInput.value = ''; // Limpiar el campo de monto
+      } else {
+        alert('Saldo insuficiente.');
+      }
+    } else {
+      alert('Cuenta no encontrada.');
+    }
+  }
 //          Pago de Servicios
 
 function pagoServicio() {
-  const documento = document.getElementById('numeroCuenta').value;
-  const clave = document.getElementById('clave').value;
+  const documento = document.getElementById('numeroCuentaPg').value;
+  const clave = document.getElementById('clavePg').value;
   const servicioSelect = document.getElementById('servicio');
   const servicio = servicioSelect.options[servicioSelect.selectedIndex].text;
   const referencia = document.getElementById('referencia').value;
-  const saldo = parseInt(document.getElementById('monto').value);
+  const saldo = parseInt(document.getElementById('montoPg').value);
 
   const cuenta = cuentas.find(cuenta => cuenta.cc === documento && cuenta.clave === clave);
 

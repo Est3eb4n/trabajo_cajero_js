@@ -39,9 +39,9 @@
             <h2>Consignar Dinero</h2>
             <form class="cont">
               <label for="numeroCuenta">Número de cuenta o documento:</label>
-              <input type="text" id="numeroCuenta" required>
+              <input type="text" id="numeroCuentaCd" required>
               <label for="monto">Monto:</label>
-              <input type="number" id="monto" min="1" required>
+              <input type="number" id="montoCd" min="1" required>
               <button type="button" onclick="consignacion()">Consignar</button>
             </form>
           </section>
@@ -49,9 +49,9 @@
             <h2>Retirar Dinero</h2>
             <form class="cont">
               <label for="numeroCuenta">Número de cuenta o documento:</label>
-              <input type="text" id="numeroCuenta" required>
+              <input type="text" id="numeroCuentaRd" required>
               <label for="monto">Monto:</label>
-              <input type="number" id="monto" min="1" required>
+              <input type="number" id="montoRd" min="1" required>
               <button type="button" onclick="RetirarDinero()">Retirar</button>
             </form>
           </section>
@@ -59,9 +59,9 @@
             <h2>Pagar Servicio</h2>
             <form class="cont">
               <label for="numeroCuenta">Número de cuenta:</label>
-              <input type="text" id="numeroCuenta" required>
+              <input type="text" id="numeroCuentaPg" required>
               <label for="clave">Clave:</label>
-              <input type="password" id="clave" required>
+              <input type="password" id="clavePg" required>
               <label for="servicio">Servicio:</label>
               <select id="servicio">
                 <option value="energia">Energía</option>
@@ -71,7 +71,7 @@
               <label for="referencia">Referencia:</label>
               <input type="text" id="referencia" required>
               <label for="monto">Monto:</label>
-              <input type="number" id="monto" min="1" required>
+              <input type="number" id="montoPg" min="1" required>
               <button type="button" onclick="pagoServicio()">Pagar</button>
               <p id="mensajeExito" class="mensaje"></p>
               <p id="mensajeError" class="mensaje"></p>

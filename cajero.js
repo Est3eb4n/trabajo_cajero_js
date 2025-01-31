@@ -1,84 +1,82 @@
 
 
-//================================ CREACION DE LA CUENTA =====================================
-// Función para crear una nueva cuenta y actualizar el DOM
-function crearCuenta(cuentas,movimientos) {
-  // Obtener los valores de los inputs
-  const cc = document.getElementById('cc').value;
-  const name = document.getElementById('name').value;
-  const clave = document.getElementById('clave').value;
-  const cta = document.getElementById('cta').value;
-  const saldo = document.getElementById('saldo').value;
 
-  // // Validación básica de los datos (puedes agregar más validaciones según tus necesidades)
-  // if (!cc || !name || !clave || !cta) {
-  //   alert('Por favor, completa todos los campos.');
-  //   return;
-  // }
+
+//================================ CREACION DE LA CUENTA =====================================
+
+// Obtener el botón de guardar y agregar el event listener
+document.getElementById('btn').addEventListener('click', crearCuenta);
+
+// Función para crear una nueva cuenta y actualizar el DOM
+function crearCuenta(event) {
+  event.preventDefault()
+  // Obtener los valores de los inputs
+  const nuevaCuenta = {
+    cc: document.getElementById('cc').value,
+    name: document.getElementById('name').value,
+    clave: document.getElementById('clave').value,
+    cta: document.getElementById('cta').value,
+    saldo: document.getElementById('saldo').value
+  };
+
+  let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+  let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
+  // Validación básica de los datos (puedes agregar más validaciones según tus necesidades)
+  if (!nuevaCuenta.cc || !nuevaCuenta.name || !nuevaCuenta.clave || !nuevaCuenta.cta) {
+    alert('Por favor, completa todos los campos.');
+    return;
+  }
 
   // Crear el nuevo objeto cuenta
-  const nuevaCuenta = {
-    "cc": cc,
-    "name": name,
-    "clave": clave,
-    "cta": cta,
-    "saldo": saldo
-  };
+  
+ 
 
   // Agregar la nueva cuenta a los arreglos (asumiendo que cuentas y movimientos existen)
   cuentas.push(nuevaCuenta);
   movimientos.push({ "cta": nuevaCuenta.cta, "movimientos": [] });
 
   // Almacenar los datos en localStorage
-  const cuentasGuardadas= localStorage.getItem("cuentas")
-  const movimientosGuardados= localStorage.getItem("movimientos")
-  
-  if(cuentasGuardadas){
-    cuentas= JSON.parse(cuentasGuardadas);
-  }
-  if(movimientosGuardados){
-    movimientos = JSON.parse(movimientosGuardados);
-  }
+  localStorage.setItem("cuentas", JSON.stringify(cuentas))
+  localStorage.setItem("movimientos", JSON.stringify(movimientos))
 
   // Mostrar un mensaje de éxito y limpiar el formulario
   alert("¡Cuenta creada exitosamente!");
-  document.getElementById('crearCuenta').reset();
 }
 
-// Obtener el botón de guardar y agregar el event listener
-const btnGuardar = document.getElementById('btn');
-btnGuardar.addEventListener('click', crearCuenta);
+
 
    
   // CONSIGNACION
   
   function consignacion() {
+    
     const documentoOcuenta = document.getElementById('numeroCuentaCd').value;
-    const montoInput = document.getElementById('montoCd');
-    const monto = parseInt(montoInput.value);
+    const montoInput = parseInt(document.getElementById('montoCd').value);
   
-    if (isNaN(monto) || monto <= 0) {
+    if (isNaN(montoInput) || montoInput <= 0) {
       alert('El monto debe ser un número positivo.');
       return;
     }
-  
+
+    let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+    let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
     const cuentaEncontrada = cuentas.find(cuenta => cuenta.cc === documentoOcuenta || cuenta.cta === documentoOcuenta);
   
     if (cuentaEncontrada) {
-      cuentaEncontrada.saldo += monto;
+      cuentaEncontrada.saldo += montoInput;
   
       movimientos.push({
         tipo: "Consignación",
         cuenta: cuentaEncontrada.cta,
-        monto,
+        monto: montoInput,
         fecha: new Date().toLocaleDateString()
       });
   
-      localStorage.setItem('cuentas', JSON.stringify(cuentas));
       localStorage.setItem('movimientos', JSON.stringify(movimientos));
   
       alert(`Consignación exitosa. Nuevo saldo: $${cuentaEncontrada.saldo}`);
-      montoInput.value = ''; // Limpiar el campo de monto
     } else {
       alert('Cuenta no encontrada.');
     }
@@ -88,32 +86,32 @@ btnGuardar.addEventListener('click', crearCuenta);
   //            Retiro 
   function RetirarDinero() {
     const documentoOcuenta = document.getElementById('numeroCuentaRd').value;
-    const montoInput = document.getElementById('montoRd');
-    const monto = parseInt(montoInput.value);
+    const montoInput = parseInt(document.getElementById('montoRd').value);
   
-    if (isNaN(monto) || monto <= 0) {
+    let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+    let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+    console.log(montoInput)
+    if (isNaN(montoInput) || montoInput <= 0) {
       alert('El monto debe ser un número positivo.');
       return;
     }
-  
+    
     const cuentaEncontrada = cuentas.find(cuenta => cuenta.cc === documentoOcuenta || cuenta.cta === documentoOcuenta);
   
     if (cuentaEncontrada) {
-      if (cuentaEncontrada.saldo >= monto) {
-        cuentaEncontrada.saldo -= monto;
+      if (cuentaEncontrada.saldo >= montoInput) {
+        cuentaEncontrada.saldo -= montoInput;
   
         retiros.push({
           tipo: "Retiro",
           cuenta: cuentaEncontrada.cta,
-          monto,
+          montoInput,
           fecha: new Date().toLocaleDateString()
         });
   
-        localStorage.setItem('cuentas', JSON.stringify(cuentas));
-        localStorage.setItem('retiros', JSON.stringify(retiros));
+        localStorage.setItem('movimientos', JSON.stringify(movimientos));
   
         alert(`Retiro exitoso. Nuevo saldo: $${cuentaEncontrada.saldo}`);
-        montoInput.value = ''; // Limpiar el campo de monto
       } else {
         alert('Saldo insuficiente.');
       }
@@ -130,6 +128,9 @@ function pagoServicio() {
   const servicio = servicioSelect.options[servicioSelect.selectedIndex].text;
   const referencia = document.getElementById('referencia').value;
   const saldo = parseInt(document.getElementById('montoPg').value);
+
+  let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+  let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
 
   const cuenta = cuentas.find(cuenta => cuenta.cc === documento && cuenta.clave === clave);
 
@@ -154,9 +155,8 @@ function pagoServicio() {
         saldo: cuenta.saldo,
         fecha: new Date().toISOString()
       });
-
-      localStorage.setItem('cuentas', JSON.stringify(cuentas));
-      localStorage.setItem('Pagos', JSON.stringify(Pagos));
+      
+      localStorage.setItem('movimientos', JSON.stringify(movimientos));
 
       // Mostrar mensaje de éxito al usuario
       const mensajeExito = document.getElementById('mensajeExito');
@@ -176,13 +176,13 @@ function pagoServicio() {
   //        Movimientos
 
   function movimientosCuenta() {
-    const numeroCuenta = prompt("Digite el número de su cuenta");
-    const clave = prompt("Digite la contraseña de su cuenta");
+      let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+      let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
   
     const cuenta = cuentas.find(cuenta => cuenta.cc === numeroCuenta && cuenta.clave === clave);
   
     if (cuenta) {
-      const movimientos = movimientoCuenta.find(movimiento => movimiento.cta === cuenta.cta);
+      const movimientos = movimientosCuenta.find(movimiento => movimiento.cta === cuenta.cta);
   
       if (movimientos) {
         // Mostrar los movimientos en una lista HTML (ejemplo)

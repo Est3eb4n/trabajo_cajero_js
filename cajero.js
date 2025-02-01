@@ -1,7 +1,3 @@
-
-
-
-
 //================================ CREACION DE LA CUENTA =====================================
 
 // Obtener el botón de guardar y agregar el event listener
@@ -16,7 +12,7 @@ function crearCuenta(event) {
     name: document.getElementById('name').value,
     clave: document.getElementById('clave').value,
     cta: document.getElementById('cta').value,
-    saldo: document.getElementById('saldo').value
+    saldo: document.getElementById('saldo')
   };
 
   let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
@@ -28,13 +24,14 @@ function crearCuenta(event) {
     return;
   }
 
-  // Crear el nuevo objeto cuenta
-  
- 
-
   // Agregar la nueva cuenta a los arreglos (asumiendo que cuentas y movimientos existen)
   cuentas.push(nuevaCuenta);
-  movimientos.push({ "cta": nuevaCuenta.cta, "movimientos": [] });
+  movimientos.push({
+    tipo: "Creacion de cuenta",
+    cuenta: cta,
+    monto: 0,
+    fecha: new Date().toLocaleDateString()
+  });
 
   // Almacenar los datos en localStorage
   localStorage.setItem("cuentas", JSON.stringify(cuentas))
@@ -44,12 +41,12 @@ function crearCuenta(event) {
   alert("¡Cuenta creada exitosamente!");
 }
 
-
-
-   
   // CONSIGNACION
-  
-  function consignacion() {
+  document.getElementById('btnConsignar').addEventListener('click', consignacion);
+
+  function consignacion(event) {
+    
+    event.preventDefault()
     
     const documentoOcuenta = document.getElementById('numeroCuentaCd').value;
     const montoInput = parseInt(document.getElementById('montoCd').value);
@@ -75,6 +72,7 @@ function crearCuenta(event) {
       });
   
       localStorage.setItem('movimientos', JSON.stringify(movimientos));
+      localStorage.setItem('cuentas', JSON.stringify(cuentas));
   
       alert(`Consignación exitosa. Nuevo saldo: $${cuentaEncontrada.saldo}`);
     } else {
@@ -82,47 +80,56 @@ function crearCuenta(event) {
     }
   }
 
-
   //            Retiro 
-  function RetirarDinero() {
+
+  document.getElementById('btnRetirar').addEventListener('click', retirarDinero);
+
+  function retirarDinero(event) {
+    
+    event.preventDefault()
+
     const documentoOcuenta = document.getElementById('numeroCuentaRd').value;
     const montoInput = parseInt(document.getElementById('montoRd').value);
-  
-    let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
-    let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
-    console.log(montoInput)
+    
     if (isNaN(montoInput) || montoInput <= 0) {
       alert('El monto debe ser un número positivo.');
       return;
     }
     
+    console.log(montoInput)
+    
+    let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
+    let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
     const cuentaEncontrada = cuentas.find(cuenta => cuenta.cc === documentoOcuenta || cuenta.cta === documentoOcuenta);
   
     if (cuentaEncontrada) {
-      if (cuentaEncontrada.saldo >= montoInput) {
-        cuentaEncontrada.saldo -= montoInput;
+      cuentaEncontrada.saldo -= montoInput;
   
-        retiros.push({
-          tipo: "Retiro",
-          cuenta: cuentaEncontrada.cta,
-          montoInput,
-          fecha: new Date().toLocaleDateString()
-        });
+      movimientos.push({
+        tipo: "Retiro",
+        cuenta: cuentaEncontrada.cta,
+        monto: montoInput,
+        fecha: new Date().toLocaleDateString()
+
+      });
   
-        localStorage.setItem('movimientos', JSON.stringify(movimientos));
+      localStorage.setItem('movimientos', JSON.stringify(movimientos));
+      localStorage.setItem('cuentas', JSON.stringify(cuentas));
   
-        alert(`Retiro exitoso. Nuevo saldo: $${cuentaEncontrada.saldo}`);
-      } else {
-        alert('Saldo insuficiente.');
-      }
+      alert(`Retiro exitoso. Monto retirado: $${cuentaEncontrada.saldo}`);
     } else {
       alert('Cuenta no encontrada.');
     }
   }
 //          Pago de Servicios
 
-function pagoServicio() {
-  const documento = document.getElementById('numeroCuentaPg').value;
+document.getElementById('btnPago').addEventListener('click', pagoServicio);
+
+function pagoServicio(event) {
+  event.preventDefault()
+
+  const numCuenta = document.getElementById('numeroCuentaPg').value;
   const clave = document.getElementById('clavePg').value;
   const servicioSelect = document.getElementById('servicio');
   const servicio = servicioSelect.options[servicioSelect.selectedIndex].text;
@@ -132,31 +139,27 @@ function pagoServicio() {
   let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
   let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
 
-  const cuenta = cuentas.find(cuenta => cuenta.cc === documento && cuenta.clave === clave);
+  const cuentaEncontrada = cuentas.find(cuenta => cuenta.cta === numCuenta && cuenta.clave === clave);
 
-  if (cuenta) {
+    
+  if (cuentaEncontrada) {
     if (saldo > 0) {
-      cuenta.saldo -= saldo;
+      cuentaEncontrada.saldo -= saldo;
 
       // Buscar o crear el movimiento correspondiente
-      const movimiento = Pagos.find(movimiento => movimiento.cta === cuenta.cta);
-      if (!movimiento) {
-        movimiento = {
-          cta: cuenta.cta,
-          Pagos: []
-        };
-        Pagos.push(movimiento);
-      }
+      movimientos.find(movimiento => movimiento.cta === cuentaEncontrada.cta);
 
-      movimiento.Pagos.push({
+      movimientos.push({
         tipo: "Pago de servicio",
         referencia,
         descripcion: `Se pagó el recibo de ${servicio}`,
-        saldo: cuenta.saldo,
+        saldo: cuentaEncontrada.saldo,
         fecha: new Date().toISOString()
       });
       
+      localStorage.setItem('cuentas', JSON.stringify(cuentas));
       localStorage.setItem('movimientos', JSON.stringify(movimientos));
+
 
       // Mostrar mensaje de éxito al usuario
       const mensajeExito = document.getElementById('mensajeExito');
@@ -175,21 +178,30 @@ function pagoServicio() {
 }
   //        Movimientos
 
-  function movimientosCuenta() {
+  document.getElementById('btnMovimientos').addEventListener('click', movimientosCuenta);  
+
+  function movimientosCuenta(event) {
+
+      event.preventDefault()
+
+      const cuentaMv= document.getElementById("numeroCuentaMv").value;
+      const clave = document.getElementById('claveMv').value;
+
+
       let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
       let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+    
+      const cuentaEncontrada = cuentas.find(cuenta => cuenta.cta === cuentaMv && cuenta.clave === clave);
   
-    const cuenta = cuentas.find(cuenta => cuenta.cc === numeroCuenta && cuenta.clave === clave);
-  
-    if (cuenta) {
-      const movimientos = movimientosCuenta.find(movimiento => movimiento.cta === cuenta.cta);
+    if (cuentaEncontrada) {
+      movimientos.find(movimiento => movimiento.cta === cuentaEncontrada.cta);
   
       if (movimientos) {
         // Mostrar los movimientos en una lista HTML (ejemplo)
         const listaMovimientos = document.getElementById('listaMovimientos');
         listaMovimientos.innerHTML = '';
   
-        movimientos.movimientos.forEach(movimiento => {
+        movimientos.forEach(movimiento => {
           const li = document.createElement('li');
           li.textContent = `Tipo: ${movimiento.tipo}, Monto: $${movimiento.monto}, Fecha: ${movimiento.fecha}`;
           listaMovimientos.appendChild(li);
@@ -216,7 +228,7 @@ enlacesMenu.forEach((enlace, index) => {
                 consignacion(cuentas, movimientos);
                 break;
             case 3:
-                RetirarDinero(cuentas,retiros);
+                retirarDinero();
                 break;
             case 4:
                 pagoServicio(cuentas, Pagos);
@@ -230,10 +242,4 @@ enlacesMenu.forEach((enlace, index) => {
                 break;
         }
     });
-});
-      
-    //      MENU
-      // function menu() {
-      //   const op = parseInt(prompt("ingrese una opcion\n 1.Crear Cuenta \n 2.Consignar en la cuenta \n 3.Retirar Dinero \n 4.Pagar Servicios \n 5.Mostrar Movimientos \n 6.salir"))
-      //   return op
-      // }
+}); 
